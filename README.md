@@ -85,7 +85,7 @@ const merged = mergeResources([nsA, nsB])
 // }
 ```
 
-Usage via CLI:
+## Usage via CLI:
 
 ```sh
 # use it with npx
