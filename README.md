@@ -31,11 +31,13 @@ const nsB = {
 const toc = tocForResources([nsA, nsB], '/some/path')
 // import nsA from './locales/en/nsA.json';
 // import nsB from './locales/en/nsB.json';
-
-// export default {
+// 
+// const resources = {
 //   nsA,
 //   nsB
-// }
+// };
+// 
+// export default resources;
 ```
 
 ## Usage via code (merge):

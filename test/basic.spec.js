@@ -32,10 +32,12 @@ const allMerged = { nsA: nsA.resources, nsB: nsB.resources }
 const toc = `import nsA from './locales/en/nsA.json';
 import nsB from './locales/en/nsB.json';
 
-export default {
+const resources = {
   nsA,
   nsB
-}
+};
+
+export default resources;
 `
 
 describe('tocForResources', () => {

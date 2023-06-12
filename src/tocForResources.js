@@ -11,14 +11,16 @@ function tocForResources (namespaces, toPath, options = {}) {
     toc += `import ${ns.name} from ${quoteChar}${relative(toPath, ns.path)}${quoteChar};\n`
   })
 
-  toc += '\nexport default {'
+  toc += '\nconst resources = {'
   namespaces.forEach((ns, i) => {
     toc += `\n  ${ns.name}`
     if (i < namespaces.length - 1) {
       toc += ','
     }
   })
-  toc += '\n}\n'
+  toc += '\n};\n'
+
+  toc += '\nexport default resources;\n'
 
   return toc
 }
