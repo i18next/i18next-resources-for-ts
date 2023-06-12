@@ -45,7 +45,6 @@ import { mergeResources } from 'i18next-resources-for-ts'
 
 const nsA = {
   name: 'nsA',
-  path: '/some/path/locales/en/nsA.json',
   resources: {
     k1: 'v1',
     k2: 'v2',
@@ -56,7 +55,6 @@ const nsA = {
 }
 const nsB = {
   name: 'nsB',
-  path: '/some/path/locales/en/nsB.json',
   resources: {
     k21: 'v21',
     k22: 'v22',
