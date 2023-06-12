@@ -33,6 +33,9 @@ const outputArgIndex = cliArgs.indexOf('-o')
 if (inputArgIndex > -1 && cliArgs[inputArgIndex + 1]) inputPath = cliArgs[inputArgIndex + 1]
 if (outputArgIndex > -1 && cliArgs[outputArgIndex + 1]) outputPath = cliArgs[outputArgIndex + 1]
 
+inputPath = path.resolve(inputPath)
+outputPath = path.resolve(outputPath)
+
 const namespaces = getNamespaces(inputPath)
 
 if (subCommand === 'toc') {
