@@ -85,6 +85,53 @@ const merged = mergeResources([nsA, nsB])
 // }
 ```
 
+## Usage via code (interface):
+
+```js
+import { mergeResourcesAsInterface } from 'i18next-resources-for-ts'
+
+const nsA = {
+  name: 'nsA',
+  resources: {
+    k1: 'v1',
+    k2: 'v2',
+    k3: {
+      d3: 'v3'
+    }
+  }
+}
+const nsB = {
+  name: 'nsB',
+  resources: {
+    k21: 'v21',
+    k22: 'v22',
+    k23: {
+      d23: 'v23'
+    }
+  }
+}
+
+const definition = mergeResourcesAsInterface([nsA, nsB])
+// interface Resources {
+//   nsA: {
+//     k1: 'v1',
+//     k2: 'v2',
+//     k3: {
+//       d3: 'v3'
+//     }
+//   },
+//   nsB: {
+//     k21: 'v21',
+//     k22: 'v22',
+//     k23: {
+//       d23: 'v23'
+//     }
+//   }
+// }
+
+// export default Resources;
+```
+
 ## Usage via CLI:
 
 ```sh
@@ -100,6 +147,7 @@ npm install i18next-resources-for-ts -g
 # if the output path is not provided, it will use the input path as base path for the result file
 
 i18next-resources-for-ts toc -i /Users/user/my/input -o /Users/user/my/output.ts
+i18next-resources-for-ts interface -i /Users/user/my/input -o /Users/user/my/output.
 i18next-resources-for-ts merge -i /Users/user/my/input -o /Users/user/my/output.json
 # i18next-resources-for-ts toc /Users/user/my/input -o /Users/user/my/output
 # i18next-resources-for-ts toc -o /Users/user/my/output

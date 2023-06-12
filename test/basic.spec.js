@@ -1,6 +1,7 @@
 import {
   tocForResources,
-  mergeResources
+  mergeResources,
+  mergeResourcesAsInterface
 } from '../index.js'
 import should from 'should'
 
@@ -40,6 +41,26 @@ const resources = {
 export default resources;
 `
 
+const mergedInterface = `interface Resources {
+  "nsA": {
+    "k1": "v1",
+    "k2": "v2",
+    "k3": {
+      "d3": "v3"
+    }
+  },
+  "nsB": {
+    "k21": "v21",
+    "k22": "v22",
+    "k23": {
+      "d23": "v23"
+    }
+  }
+}
+
+export default Resources;
+`
+
 describe('tocForResources', () => {
   it('should generate a toc file content from namespace resources', async () => {
     const tocRet = tocForResources([nsA, nsB], '/some/path')
@@ -53,5 +74,13 @@ describe('mergeResources', () => {
     const merged = mergeResources([nsA, nsB])
     // console.log(merged)
     should(merged).eql(allMerged)
+  })
+})
+
+describe('mergeResourcesAsInterface', () => {
+  it('should generate a big interface file content from namespace resources', async () => {
+    const merged = mergeResourcesAsInterface([nsA, nsB])
+    // console.log(merged)
+    should(merged).eql(mergedInterface)
   })
 })

@@ -5,14 +5,16 @@ const path = require('path')
 const getNamespaces = require('./getNamespaces.js')
 const {
   tocForResources,
-  mergeResources
+  mergeResources,
+  mergeResourcesAsInterface
 } = require('../')
 
 const cliArgs = process.argv.slice(2)
 
 const subCommands = [
   'toc',
-  'merge'
+  'merge',
+  'interface'
 ]
 
 if (cliArgs.length === 0 || subCommands.indexOf(cliArgs[0]) < 0) {
@@ -56,4 +58,14 @@ if (subCommand === 'merge') {
   }
   fs.writeFileSync(outputFile, JSON.stringify(merged, null, 2), 'utf-8')
   console.log(`created merged resources file for ${namespaces.length} namespaces: ${outputFile}`)
+}
+
+if (subCommand === 'interface') {
+  let outputFile = outputPath
+  if (!outputFile.endsWith('.d.ts')) {
+    outputFile = path.join(outputFile, 'resources.d.ts')
+  }
+  const typeDefinitionFile = mergeResourcesAsInterface(namespaces)
+  fs.writeFileSync(outputFile, typeDefinitionFile, 'utf-8')
+  console.log(`created .d.ts resources file for ${namespaces.length} namespaces: ${outputFile}`)
 }
