@@ -8,7 +8,11 @@ function tocForResources (namespaces, toPath, options = {}) {
   let toc = ''
 
   namespaces.forEach((ns) => {
-    toc += `import ${ns.name} from ${quoteChar}${relative(toPath, ns.path)}${quoteChar};\n`
+    if (ns.tsPath) {
+      toc += `import ${ns.name} from ${quoteChar}${relative(toPath, ns.tsPath.replace('.ts', ''))}${quoteChar};\n`
+    } else {
+      toc += `import ${ns.name} from ${quoteChar}${relative(toPath, ns.path)}${quoteChar};\n`
+    }
   })
 
   toc += '\nconst resources = {'
@@ -18,7 +22,7 @@ function tocForResources (namespaces, toPath, options = {}) {
       toc += ','
     }
   })
-  toc += '\n};\n'
+  toc += '\n} as const;\n'
 
   toc += '\nexport default resources;\n'
 

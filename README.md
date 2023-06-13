@@ -153,6 +153,8 @@ i18next-resources-for-ts merge -i /Users/user/my/input -o /Users/user/my/output.
 # i18next-resources-for-ts toc -o /Users/user/my/output
 # i18next-resources-for-ts toc -i /Users/user/my/input
 # i18next-resources-for-ts toc
+# 
+# toc accepts also the optional -cts argument that will automatically convert json to ts files and the optional -d argument that will delete the original json files
 ```
 
 *Make sure your folder structure contains all relevant namespaces (in your source/reference language):*

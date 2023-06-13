@@ -1,11 +1,13 @@
 import {
   tocForResources,
   mergeResources,
-  mergeResourcesAsInterface
+  mergeResourcesAsInterface,
+  json2ts
 } from './src/index.js'
 
 export {
   tocForResources,
   mergeResources,
-  mergeResourcesAsInterface
+  mergeResourcesAsInterface,
+  json2ts
 }

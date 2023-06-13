@@ -6,7 +6,8 @@ const getNamespaces = require('./getNamespaces.js')
 const {
   tocForResources,
   mergeResources,
-  mergeResourcesAsInterface
+  mergeResourcesAsInterface,
+  json2ts
 } = require('../')
 
 const cliArgs = process.argv.slice(2)
@@ -45,9 +46,29 @@ if (subCommand === 'toc') {
   if (!outputFile.endsWith('.ts')) {
     outputFile = path.join(outputFile, 'resources.ts')
   }
-  const toc = tocForResources(namespaces, outputFile)
+
+  let nsToUse = namespaces
+  const convertToTs = cliArgs.indexOf('-cts') > 0
+  const del = cliArgs.indexOf('-d') > 0
+  if (convertToTs) {
+    nsToUse = namespaces.map((n) => {
+      n.ts = json2ts(n.resources)
+      n.tsPath = n.path.replace('.json', '.ts')
+      return n
+    })
+    nsToUse.forEach((n) => {
+      fs.writeFileSync(n.tsPath, n.ts, 'utf-8')
+    })
+  }
+
+  const toc = tocForResources(nsToUse, outputFile)
   fs.writeFileSync(outputFile, toc, 'utf-8')
-  console.log(`created toc resources file for ${namespaces.length} namespaces: ${outputFile}`)
+  if (convertToTs && del) {
+    nsToUse.forEach((n) => {
+      fs.unlinkSync(n.path)
+    })
+  }
+  console.log(`created toc resources file for ${nsToUse.length} ${convertToTs ? 'converted ts ' : ''}namespaces: ${outputFile}`)
 }
 
 if (subCommand === 'merge') {
