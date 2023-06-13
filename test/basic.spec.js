@@ -37,7 +37,7 @@ import nsB from './locales/en/nsB.json';
 const resources = {
   nsA,
   nsB
-};
+} as const;
 
 export default resources;
 `
