@@ -169,6 +169,12 @@ i.e.
 └── common.json
 ```
 
+### Check these examples to see how to use it:
+
+- [next-i18next](https://github.com/i18next/next-i18next/blob/c419b2be3b4772de17309db474facd6dbeb86888/examples/simple/package.json#L13)
+- [next-13-app-dir-i18next-example-ts](https://github.com/i18next/next-13-app-dir-i18next-example-ts/blob/5ae41d390dd61630becf5671fb886d925b42cc10/package.json#L13)
+- [react-i18next-example-app-ts](https://github.com/locize/react-i18next-example-app-ts/blob/574531491d7e8a7c67bea1187e2d9c13982d5112/package.json#L35)
+
 ---
 
 <h3 align="center">Gold Sponsors</h3>
