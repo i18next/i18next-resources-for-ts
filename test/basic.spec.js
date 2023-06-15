@@ -18,8 +18,8 @@ const nsA = {
   }
 }
 const nsB = {
-  name: 'nsB',
-  path: '/some/path/locales/en/nsB.json',
+  name: 'ns-B',
+  path: '/some/path/locales/en/ns-B.json',
   resources: {
     k21: 'v21',
     k22: 'v22',
@@ -29,14 +29,14 @@ const nsB = {
   }
 }
 
-const allMerged = { nsA: nsA.resources, nsB: nsB.resources }
+const allMerged = { nsA: nsA.resources, 'ns-B': nsB.resources }
 
 const toc = `import nsA from './locales/en/nsA.json';
-import nsB from './locales/en/nsB.json';
+import nsB from './locales/en/ns-B.json';
 
 const resources = {
   nsA,
-  nsB
+  'ns-B': nsB
 } as const;
 
 export default resources;
@@ -50,7 +50,7 @@ const mergedInterface = `interface Resources {
       "d3": "v3"
     }
   },
-  "nsB": {
+  "ns-B": {
     "k21": "v21",
     "k22": "v22",
     "k23": {

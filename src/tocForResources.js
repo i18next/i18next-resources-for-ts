@@ -1,6 +1,13 @@
 import defaults from './defaults.js'
 import relative from './relative.js'
 
+function getVarName (name) {
+  if (name.indexOf('-') > 0 || name.indexOf(' ') > 0) {
+    return name.replace(/[- ]/g, '')
+  }
+  return name
+}
+
 function tocForResources (namespaces, toPath, options = {}) {
   const opt = { ...options, ...defaults }
   const quoteChar = opt.quotes === 'single' ? '\'' : '"'
@@ -8,16 +15,22 @@ function tocForResources (namespaces, toPath, options = {}) {
   let toc = ''
 
   namespaces.forEach((ns) => {
+    const nameToUse = getVarName(ns.name)
     if (ns.tsPath) {
-      toc += `import ${ns.name} from ${quoteChar}${relative(toPath, ns.tsPath.replace('.ts', ''))}${quoteChar};\n`
+      toc += `import ${nameToUse} from ${quoteChar}${relative(toPath, ns.tsPath.replace('.ts', ''))}${quoteChar};\n`
     } else {
-      toc += `import ${ns.name} from ${quoteChar}${relative(toPath, ns.path)}${quoteChar};\n`
+      toc += `import ${nameToUse} from ${quoteChar}${relative(toPath, ns.path)}${quoteChar};\n`
     }
   })
 
   toc += '\nconst resources = {'
   namespaces.forEach((ns, i) => {
-    toc += `\n  ${ns.name}`
+    const nameToUse = getVarName(ns.name)
+    if (nameToUse !== ns.name) {
+      toc += `\n  ${quoteChar}${ns.name}${quoteChar}: ${nameToUse}`
+    } else {
+      toc += `\n  ${ns.name}`
+    }
     if (i < namespaces.length - 1) {
       toc += ','
     }
