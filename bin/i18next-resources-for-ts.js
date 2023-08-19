@@ -30,14 +30,19 @@ if (cliArgs.length > 0 && cliArgs[1].indexOf('-') !== 0) {
   inputPath = cliArgs[1]
   outputPath = inputPath
 }
+let comment
 
 const inputArgIndex = cliArgs.indexOf('-i')
 const outputArgIndex = cliArgs.indexOf('-o')
+const commentArgIndex = cliArgs.indexOf('-c')
 if (inputArgIndex > -1 && cliArgs[inputArgIndex + 1]) inputPath = cliArgs[inputArgIndex + 1]
 if (outputArgIndex > -1 && cliArgs[outputArgIndex + 1]) outputPath = cliArgs[outputArgIndex + 1]
+if (commentArgIndex > -1 && cliArgs[commentArgIndex + 1]) comment = cliArgs[commentArgIndex + 1]
 
 inputPath = path.resolve(inputPath)
 outputPath = path.resolve(outputPath)
+
+const commentSection = comment ? `/**\n * ${comment}\n */\n` : ''
 
 const namespaces = getNamespaces(inputPath)
 
@@ -57,12 +62,12 @@ if (subCommand === 'toc') {
       return n
     })
     nsToUse.forEach((n) => {
-      fs.writeFileSync(n.tsPath, n.ts, 'utf-8')
+      fs.writeFileSync(n.tsPath, commentSection + n.ts, 'utf-8')
     })
   }
 
   const toc = tocForResources(nsToUse, outputFile)
-  fs.writeFileSync(outputFile, toc, 'utf-8')
+  fs.writeFileSync(outputFile, commentSection + toc, 'utf-8')
   if (convertToTs && del) {
     nsToUse.forEach((n) => {
       fs.unlinkSync(n.path)
@@ -72,6 +77,7 @@ if (subCommand === 'toc') {
 }
 
 if (subCommand === 'merge') {
+  if (comment) console.warn('Comment is ignored for json file output.')
   const merged = mergeResources(namespaces)
   let outputFile = outputPath
   if (!outputFile.endsWith('.json')) {
@@ -87,6 +93,6 @@ if (subCommand === 'interface') {
     outputFile = path.join(outputFile, 'resources.d.ts')
   }
   const typeDefinitionFile = mergeResourcesAsInterface(namespaces)
-  fs.writeFileSync(outputFile, typeDefinitionFile, 'utf-8')
+  fs.writeFileSync(outputFile, commentSection + typeDefinitionFile, 'utf-8')
   console.log(`created .d.ts resources file for ${namespaces.length} namespaces: ${outputFile}`)
 }
