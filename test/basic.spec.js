@@ -79,6 +79,20 @@ describe('tocForResources', () => {
     // console.log(tocRet)
     should(tocRet).eql(toc)
   })
+
+  describe('win', () => {
+    it('should generate a toc file content from namespace resources', async () => {
+      const nsAWin = { ...nsA }
+      nsAWin.path = nsAWin.path.replace(/\//g, '\\')
+      // nsAWin.path = 'C:' + nsAWin.path
+      const nsBWin = { ...nsB }
+      nsBWin.path = nsBWin.path.replace(/\//g, '\\')
+      // nsBWin.path = 'C:' + nsBWin.path
+      const tocRet = tocForResources([nsAWin, nsBWin], '\\some\\path')
+      // console.log(tocRet)
+      should(tocRet).eql(toc)
+    })
+  })
 })
 
 describe('mergeResources', () => {
