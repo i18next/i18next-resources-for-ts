@@ -22,9 +22,6 @@ function relative (from, to) {
   let separator = pathSeparator
   if (from.indexOf(pathSeparatorWin) > -1 || to.indexOf(pathSeparatorWin) > -1) {
     separator = pathSeparatorWin
-    if (from[1] === ':' || from[2] === ':') {
-      separatorInFileContent = pathSeparatorWin
-    }
   }
 
   if (from.endsWith(separator)) from = from.substring(0, from.length - separator.length)
@@ -52,6 +49,12 @@ function relative (from, to) {
   }
 
   outputParts = outputParts.concat(toParts.slice(samePartsLength))
+
+  if (from.indexOf(pathSeparatorWin) > -1 || to.indexOf(pathSeparatorWin) > -1) {
+    if (outputParts[2] === ':') {
+      separatorInFileContent = pathSeparatorWin
+    }
+  }
 
   let ret = outputParts.join(separatorInFileContent)
   if (!ret.startsWith(from.substring(0, 2)) && !ret.startsWith('.')) {
