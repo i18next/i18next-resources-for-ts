@@ -31,8 +31,8 @@ const nsB = {
 
 const allMerged = { nsA: nsA.resources, 'ns-B': nsB.resources }
 
-const toc = `import nsA from './locales/en/nsA.json';
-import nsB from './locales/en/ns-B.json';
+const toc = `import nsA from '../locales/en/nsA.json';
+import nsB from '../locales/en/ns-B.json';
 
 const resources = {
   nsA,
@@ -75,22 +75,48 @@ export default ns;
 
 describe('tocForResources', () => {
   it('should generate a toc file content from namespace resources', async () => {
-    const tocRet = tocForResources([nsA, nsB], '/some/path')
+    const tocRet = tocForResources([nsA, nsB], '/some/path/@types')
     // console.log(tocRet)
     should(tocRet).eql(toc)
+  })
+
+  describe('with target filename', () => {
+    it('should generate a toc file content from namespace resources', async () => {
+      const tocRet = tocForResources([nsA, nsB], '/some/path/@types/resources.ts')
+      // console.log(tocRet)
+      should(tocRet).eql(toc)
+    })
   })
 
   describe('win', () => {
     it('should generate a toc file content from namespace resources', async () => {
       const nsAWin = { ...nsA }
       nsAWin.path = nsAWin.path.replace(/\//g, '\\')
-      // nsAWin.path = 'C:' + nsAWin.path
+      nsAWin.path = 'C:' + nsAWin.path
+      nsAWin.path = 'C:\\some\\path\\locales\\en\\nsA.json'
       const nsBWin = { ...nsB }
       nsBWin.path = nsBWin.path.replace(/\//g, '\\')
-      // nsBWin.path = 'C:' + nsBWin.path
-      const tocRet = tocForResources([nsAWin, nsBWin], '\\some\\path')
+      nsBWin.path = 'C:' + nsBWin.path
+      nsBWin.path = 'C:\\some\\path\\locales\\en\\ns-B.json'
+      const tocRet = tocForResources([nsAWin, nsBWin], 'C:\\some\\path\\@types')
       // console.log(tocRet)
       should(tocRet).eql(toc)
+    })
+
+    describe('with target filename', () => {
+      it('should generate a toc file content from namespace resources', async () => {
+        const nsAWin = { ...nsA }
+        nsAWin.path = nsAWin.path.replace(/\//g, '\\')
+        nsAWin.path = 'C:' + nsAWin.path
+        nsAWin.path = 'C:\\some\\path\\locales\\en\\nsA.json'
+        const nsBWin = { ...nsB }
+        nsBWin.path = nsBWin.path.replace(/\//g, '\\')
+        nsBWin.path = 'C:' + nsBWin.path
+        nsBWin.path = 'C:\\some\\path\\locales\\en\\ns-B.json'
+        const tocRet = tocForResources([nsAWin, nsBWin], 'C:\\some\\path\\@types\\resources.ts')
+        // console.log(tocRet)
+        should(tocRet).eql(toc)
+      })
     })
   })
 })

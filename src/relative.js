@@ -11,7 +11,7 @@ function trim (arr, startOnly) {
 
   if (start > end) return []
   if (startOnly) return arr.slice(start)
-  return arr.slice(start, end - start + 1)
+  return arr.slice(start, end)
 }
 
 const pathSeparatorWin = '\\'
@@ -20,7 +20,8 @@ const pathSeparator = '/'
 function relative (from, to) {
   let separatorInFileContent = pathSeparator
   let separator = pathSeparator
-  if (from.indexOf(pathSeparatorWin) > -1 || to.indexOf(pathSeparatorWin) > -1) {
+  const seemsWindowsPath = from.indexOf(pathSeparatorWin) > -1 || to.indexOf(pathSeparatorWin) > -1
+  if (seemsWindowsPath) {
     separator = pathSeparatorWin
   }
 
@@ -28,8 +29,10 @@ function relative (from, to) {
 
   const toParts = trim(to.split(separator), true)
 
-  const lowerFromParts = trim(from.split(separator), from.indexOf('.') < 0)
-  const lowerToParts = trim(to.split(separator), true)
+  const splittedFrom = from.split(separator)
+  const lowerFromParts = trim(splittedFrom, from.indexOf('.') < 0)
+  const splittedTo = to.split(separator)
+  const lowerToParts = trim(splittedTo, true)
 
   const length = Math.min(lowerFromParts.length, lowerToParts.length)
   let samePartsLength = length
@@ -50,10 +53,8 @@ function relative (from, to) {
 
   outputParts = outputParts.concat(toParts.slice(samePartsLength))
 
-  if (from.indexOf(pathSeparatorWin) > -1 || to.indexOf(pathSeparatorWin) > -1) {
-    if (outputParts[2] === ':') {
-      separatorInFileContent = pathSeparatorWin
-    }
+  if (seemsWindowsPath && outputParts[2] === ':') {
+    separatorInFileContent = pathSeparatorWin
   }
 
   let ret = outputParts.join(separatorInFileContent)
