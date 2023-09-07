@@ -1,6 +1,6 @@
 {
   "name": "i18next-resources-for-ts",
-  "version": "1.3.1",
+  "version": "1.3.2",
   "description": "This package helps to transform resources to be used in a typesafe i18next project.",
   "keywords": [
     "i18next",
