@@ -1,10 +1,17 @@
 const fs = require('fs')
 const path = require('path')
+const YAML = require('yaml')
+
+const parsers = {
+  '.json': JSON.parse,
+  '.yml': YAML.parse,
+  '.yaml': YAML.parse
+}
 
 const getFiles = (srcpath) => {
   return fs.readdirSync(srcpath).filter((file) => {
     return !fs.statSync(path.join(srcpath, file)).isDirectory()
-  }).filter((file) => path.extname(file) === '.json').map((file) => path.join(srcpath, file))
+  }).filter((file) => Object.keys(parsers).includes(path.extname(file))).map((file) => path.join(srcpath, file))
 }
 
 const getDirectories = (srcpath) => {
@@ -26,7 +33,8 @@ module.exports = (p) => {
   const allFiles = getAllFiles(p)
 
   return allFiles.map((file) => {
-    const namespace = JSON.parse(fs.readFileSync(file, 'utf-8'))
+    const parse = parsers[path.extname(file)]
+    const namespace = parse(fs.readFileSync(file, 'utf-8'))
     const sepFile = file.split(path.sep)
     const fileName = sepFile[sepFile.length - 1]
     const name = path.parse(fileName).name
