@@ -163,11 +163,29 @@ i18next-resources-for-ts merge -i /Users/user/my/input -o /Users/user/my/output.
 ```sh
 └── namespace.json
 ```
+or
+```sh
+└── namespace.yml
+```
+or
+```sh
+└── namespace.yaml
+```
 
 i.e.
 ```sh
 ├── translation.json
 └── common.json
+```
+or
+```sh
+├── translation.yml
+└── common.yml
+```
+or
+```sh
+├── translation.yaml
+└── common.yaml
 ```
 
 ### Check these examples to see how to use it:
