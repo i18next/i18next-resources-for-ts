@@ -11,7 +11,7 @@ Source can be loaded via [npm](https://www.npmjs.com/package/i18next-resources-f
 
 ```bash
 # npm package
-$ npm install i18next-resources-for-ts
+$ npm install -D i18next-resources-for-ts
 ```
 
 ## Usage via code (toc):
