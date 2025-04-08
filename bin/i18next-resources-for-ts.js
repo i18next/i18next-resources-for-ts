@@ -89,10 +89,10 @@ if (subCommand === 'merge') {
 
 if (subCommand === 'interface') {
   let outputFile = outputPath
-  if (!outputFile.endsWith('.d.ts')) {
+  if (!outputFile.endsWith('.ts')) {
     outputFile = path.join(outputFile, 'resources.d.ts')
   }
   const typeDefinitionFile = mergeResourcesAsInterface(namespaces)
   fs.writeFileSync(outputFile, commentSection + typeDefinitionFile, 'utf-8')
-  console.log(`created .d.ts resources file for ${namespaces.length} namespaces: ${outputFile}`)
+  console.log(`created interface resources file for ${namespaces.length} namespaces: ${outputFile}`)
 }
