@@ -18,8 +18,8 @@ const nsA = {
   }
 }
 const nsB = {
-  name: 'ns-B',
-  path: '/some/path/locales/en/ns-B.json',
+  name: 'nsB-B',
+  path: '/some/path/locales/en/nsB-B.json',
   resources: {
     k21: 'v21',
     k22: 'v22',
@@ -29,14 +29,14 @@ const nsB = {
   }
 }
 
-const allMerged = { nsA: nsA.resources, 'ns-B': nsB.resources }
+const allMerged = { nsA: nsA.resources, 'nsB-B': nsB.resources }
 
 const toc = `import nsA from '../locales/en/nsA.json';
-import nsB from '../locales/en/ns-B.json';
+import nsBB from '../locales/en/nsB-B.json';
 
 const resources = {
   nsA,
-  'ns-B': nsB
+  'nsB-B': nsBB
 } as const;
 
 export default resources;
@@ -50,7 +50,7 @@ const mergedInterface = `interface Resources {
       "d3": "v3"
     }
   },
-  "ns-B": {
+  "nsB-B": {
     "k21": "v21",
     "k22": "v22",
     "k23": {
@@ -97,7 +97,7 @@ describe('tocForResources', () => {
       const nsBWin = { ...nsB }
       nsBWin.path = nsBWin.path.replace(/\//g, '\\')
       nsBWin.path = 'C:' + nsBWin.path
-      nsBWin.path = 'C:\\some\\path\\locales\\en\\ns-B.json'
+      nsBWin.path = 'C:\\some\\path\\locales\\en\\nsB-B.json'
       const tocRet = tocForResources([nsAWin, nsBWin], 'C:\\some\\path\\@types')
       // console.log(tocRet)
       should(tocRet).eql(toc)
@@ -112,7 +112,7 @@ describe('tocForResources', () => {
         const nsBWin = { ...nsB }
         nsBWin.path = nsBWin.path.replace(/\//g, '\\')
         nsBWin.path = 'C:' + nsBWin.path
-        nsBWin.path = 'C:\\some\\path\\locales\\en\\ns-B.json'
+        nsBWin.path = 'C:\\some\\path\\locales\\en\\nsB-B.json'
         const tocRet = tocForResources([nsAWin, nsBWin], 'C:\\some\\path\\@types\\resources.ts')
         // console.log(tocRet)
         should(tocRet).eql(toc)
