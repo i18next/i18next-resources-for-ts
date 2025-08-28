@@ -110,7 +110,8 @@ const nsB = {
     }
   }
 }
-
+// you can optionaly provide a second argument, with options:
+// { optimize: boolean } - if true (false is default) it will optimize the interface, to be `enableSelector: "optimize"` compatible (see TypeScript i18next docs)
 const definition = mergeResourcesAsInterface([nsA, nsB])
 // interface Resources {
 //   nsA: {
@@ -141,10 +142,12 @@ npx i18next-resources-for-ts subcommand -i /Users/user/my/input -o /Users/user/m
 # or install it globally
 npm install i18next-resources-for-ts -g
 
-# subcommand is either toc or merge
+# subcommand is either toc or merge or interface
 # -i is the input path
 # -o is the output path
 # if the output path is not provided, it will use the input path as base path for the result file
+# when using `interface`, you can also set:
+# --optimize will make the output compatible with `enableSelector: "optimize"` (see TypeScript i18next docs)
 
 i18next-resources-for-ts toc -i /Users/user/my/input -o /Users/user/my/output.ts
 i18next-resources-for-ts interface -i /Users/user/my/input -o /Users/user/my/output.d.ts
