@@ -1,20 +1,38 @@
 import mergeResources from './mergeResources.js'
 
-function mergeResourcesAsInterface(namespaces, options = {}) {
+function mergeResourcesAsInterface (namespaces, options = {}) {
   let resources = mergeResources(namespaces)
   let interfaceFileContent = 'interface Resources '
 
   if (options.optimize) {
     resources = groupPluralKeys(Object.entries(resources), options)
   }
-  console.dir(resources, {depth: null})
 
-  interfaceFileContent += JSON.stringify(resources, null, 2)
+  interfaceFileContent += resourceToString(resources)
   interfaceFileContent += '\n\nexport default Resources;\n'
   return interfaceFileContent
 }
 
-const isPluralKey = (key, {pluralSeparator = defaultOptions.pluralSeparator}) => pluralSuffixes
+function resourceToString (resources, intendation = 0) {
+  const intend = '\t'.repeat(intendation)
+  if (typeof resources === 'string') return `"${resources.replace(/"/g, '\\"')}"`
+  if (Array.isArray(resources)) {
+    return `[${resources.map(it => resourceToString(it)).join(', ')}]`
+  }
+  if (resources && '_tag' in resources && resources._tag === translationSymbol) {
+    return resources.value.map(it => JSON.stringify(it)).join(' | ')
+  }
+  if (typeof resources === 'object' && resources !== null) {
+    const entries = Object.entries(resources)
+      .sort(([k1], [k2]) => { if (k1 < k2) return -1; if (k1 > k2) return 1; return 0 })
+      .map(([k, v]) => {
+        return `"${k.replace(/"/g, '\\"')}": ${resourceToString(v, intendation + 1)}`
+      })
+    return `{\n${entries.map(it => `${intend}\t${it}`).join(',\n')}\n${intend}}`
+  }
+}
+
+const isPluralKey = (key, { pluralSeparator = defaultOptions.pluralSeparator }) => pluralSuffixes
   .map((suffix) => `${pluralSeparator}${suffix}`)
   .some((suffix) => key.endsWith(suffix))
 
@@ -33,7 +51,7 @@ export const pluralSuffixes = [
 
 const isPluralEntry = (options) => (entry) => isPluralKey(entry[0], options)
 
-export function rmPluralization(entry, options) {
+export function rmPluralization (entry, options) {
   if (!isPluralEntry(options)(entry)) return null
   else {
     const [key] = entry
@@ -42,9 +60,11 @@ export function rmPluralization(entry, options) {
   }
 }
 
-export function groupPluralKeys(entries, options) {
-  if (typeof entries === "string") return entries
-  console.dir(entries.map(it => it[0]).join(", "))
+const translationSymbol = Symbol('is-translation')
+
+export function groupPluralKeys (entries, options) {
+  if (typeof entries === 'string') return entries
+
   if (entries.length === 0) return {}
 
   return entries.reduce(
@@ -65,16 +85,16 @@ export function groupPluralKeys(entries, options) {
       }
       const maybe = rmPluralization([k, v], options)
       if (maybe == null) {
-        acc[k] = [v]
+        acc[k] = { _tag: translationSymbol, value: [v] }
         return acc
       }
       const depluralized = maybe
       if (depluralized in acc) {
         const existing = acc[depluralized]
-        acc[depluralized] = [...existing, v]
+        acc[depluralized] = { _tag: translationSymbol, value: [...existing.value, v] } // just use the existing one
         return acc
       } else {
-        acc[depluralized] = [v]
+        acc[depluralized] = { _tag: translationSymbol, value: [v] }
         return acc
       }
     },

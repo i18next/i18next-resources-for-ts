@@ -36,11 +36,11 @@ let comment
 const inputArgIndex = cliArgs.indexOf('-i')
 const outputArgIndex = cliArgs.indexOf('-o')
 const commentArgIndex = cliArgs.indexOf('-c')
-const optimizeArgIndex = cliArgs.indexOf("--optimize")
+const optimizeArgIndex = cliArgs.indexOf('--optimize')
 if (inputArgIndex > -1 && cliArgs[inputArgIndex + 1]) inputPath = cliArgs[inputArgIndex + 1]
 if (outputArgIndex > -1 && cliArgs[outputArgIndex + 1]) outputPath = cliArgs[outputArgIndex + 1]
 if (commentArgIndex > -1 && cliArgs[commentArgIndex + 1]) comment = cliArgs[commentArgIndex + 1]
-if(optimizeArgIndex > -1) optimize = true
+if (optimizeArgIndex > -1) optimize = true
 
 inputPath = path.resolve(inputPath)
 outputPath = path.resolve(outputPath)
@@ -95,7 +95,7 @@ if (subCommand === 'interface') {
   if (!outputFile.endsWith('.ts')) {
     outputFile = path.join(outputFile, 'resources.d.ts')
   }
-  const typeDefinitionFile = mergeResourcesAsInterface(namespaces, {optimize})
+  const typeDefinitionFile = mergeResourcesAsInterface(namespaces, { optimize })
   fs.writeFileSync(outputFile, commentSection + typeDefinitionFile, 'utf-8')
   console.log(`created interface resources file for ${namespaces.length} namespaces: ${outputFile}`)
 }
