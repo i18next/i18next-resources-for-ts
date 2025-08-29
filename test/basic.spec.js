@@ -73,6 +73,37 @@ const nsAts = `const ns = {
 export default ns;
 `
 
+const nsWithPlurals = {
+  name: 'nsWithPlurals',
+  path: '/some/path/locales/en/nsWithPlurals.json',
+  resources: {
+    abc_one: 'one',
+    abc_many: 'many',
+    def: ['ghi', 'jkl']
+  }
+}
+
+const nsWithPluralsMergedInterface = `interface Resources {
+  "nsWithPlurals": {
+    "abc_many": "many",
+    "abc_one": "one",
+    "def": ["ghi", "jkl"]
+  }
+}
+
+export default Resources;
+`
+
+const nsWithPluralsMergedInterfaceOptimized = `interface Resources {
+  "nsWithPlurals": {
+    "abc": "one" | "many",
+    "def": ["ghi", "jkl"]
+  }
+}
+
+export default Resources;
+`
+
 describe('tocForResources', () => {
   it('should generate a toc file content from namespace resources', async () => {
     const tocRet = tocForResources([nsA, nsB], '/some/path/@types')
@@ -134,6 +165,22 @@ describe('mergeResourcesAsInterface', () => {
     const merged = mergeResourcesAsInterface([nsA, nsB])
     // console.log(merged)
     should(merged).eql(mergedInterface)
+  })
+
+  describe('with plurals', () => {
+    it('should generate a big interface file content from namespace resources', async () => {
+      const merged = mergeResourcesAsInterface([nsWithPlurals])
+      // console.log(merged)
+      should(merged).eql(nsWithPluralsMergedInterface)
+    })
+
+    describe('with optimize flag', () => {
+      it('should generate a big interface file content from namespace resources', async () => {
+        const merged = mergeResourcesAsInterface([nsWithPlurals], { optimize: true })
+        // console.log(merged)
+        should(merged).eql(nsWithPluralsMergedInterfaceOptimized)
+      })
+    })
   })
 })
 

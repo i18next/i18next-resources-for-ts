@@ -21,5 +21,5 @@ export type Merged = {
 
 export function tocForResources (namespaces: NamespacesForToc, toPath: string, options?: { quotes?: 'single' | 'double' }): string
 export function mergeResources (namespaces: NamespacesForMerge): Merged
-export function mergeResourcesAsInterface (namespaces: NamespacesForMerge): string
+export function mergeResourcesAsInterface (namespaces: NamespacesForMerge, options?: { optimize: boolean }): string
 export function json2ts (resources: Resources): string
