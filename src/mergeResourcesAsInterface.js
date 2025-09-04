@@ -20,7 +20,7 @@ function resourceToString (resources, indentation = 0) {
     return `[${resources.map(it => resourceToString(it)).join(', ')}]`
   }
   if (resources && '_tag' in resources && resources._tag === translationSymbol) {
-    return resources.value.map(it => JSON.stringify(it)).join(' | ')
+    return resources.value.map(it => `"${it.replace(/"/g, '\\"')}"`).join(' | ')
   }
   if (typeof resources === 'object' && resources !== null) {
     const entries = Object.entries(resources)

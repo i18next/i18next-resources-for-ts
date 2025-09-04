@@ -22,7 +22,7 @@ const nsB = {
   path: '/some/path/locales/en/nsB-B.json',
   resources: {
     k21: 'v21',
-    k22: 'v22',
+    k22: 'v22\nnextline',
     k23: {
       d23: 'v23'
     }
@@ -52,7 +52,7 @@ const mergedInterface = `interface Resources {
   },
   "nsB-B": {
     "k21": "v21",
-    "k22": "v22",
+    "k22": "v22\nnextline",
     "k23": {
       "d23": "v23"
     }
@@ -161,10 +161,12 @@ describe('mergeResources', () => {
 })
 
 describe('mergeResourcesAsInterface', () => {
-  it('should generate a big interface file content from namespace resources', async () => {
-    const merged = mergeResourcesAsInterface([nsA, nsB])
-    // console.log(merged)
-    should(merged).eql(mergedInterface)
+  describe('with optimize flag', () => {
+    it('should generate a big interface file content from namespace resources', async () => {
+      const merged = mergeResourcesAsInterface([nsA, nsB], { optimize: true })
+      // console.log(merged)
+      should(merged).eql(mergedInterface)
+    })
   })
 
   describe('with plurals', () => {
