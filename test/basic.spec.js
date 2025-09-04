@@ -14,7 +14,8 @@ const nsA = {
     k2: 'v2',
     k3: {
       d3: 'v3'
-    }
+    },
+    'k_error.api_status.404': 'The resource you are looking for could not be found.\nIt may have been moved, deleted, or the link is incorrect.'
   }
 }
 const nsB = {
@@ -48,11 +49,12 @@ const mergedInterface = `interface Resources {
     "k2": "v2",
     "k3": {
       "d3": "v3"
-    }
+    },
+    "k_error.api_status.404": "The resource you are looking for could not be found.\\nIt may have been moved, deleted, or the link is incorrect."
   },
   "nsB-B": {
     "k21": "v21",
-    "k22": "v22\nnextline",
+    "k22": "v22\\nnextline",
     "k23": {
       "d23": "v23"
     }
@@ -67,7 +69,8 @@ const nsAts = `const ns = {
   "k2": "v2",
   "k3": {
     "d3": "v3"
-  }
+  },
+  "k_error.api_status.404": "The resource you are looking for could not be found.\\nIt may have been moved, deleted, or the link is incorrect."
 } as const;
 
 export default ns;
