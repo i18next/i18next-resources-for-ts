@@ -15,7 +15,7 @@ function mergeResourcesAsInterface (namespaces, options = {}) {
 
 function resourceToString (resources, indentation = 0) {
   const intend = '  '.repeat(indentation)
-  if (typeof resources === 'string') return `"${resources.replace(/"/g, '\\"')}"`
+  if (typeof resources === 'string') return JSON.stringify(resources)
   if (Array.isArray(resources)) {
     return `[${resources.map(it => resourceToString(it)).join(', ')}]`
   }
