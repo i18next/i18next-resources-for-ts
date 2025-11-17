@@ -8,16 +8,23 @@ function mergeResourcesAsInterface (namespaces, options = {}) {
     resources = groupPluralKeys(Object.entries(resources), options)
   }
 
-  interfaceFileContent += resourceToString(resources)
+  // pass options so resourceToString can use custom indentation
+  interfaceFileContent += resourceToString(resources, 0, options)
   interfaceFileContent += '\n\nexport default Resources;\n'
   return interfaceFileContent
 }
 
-function resourceToString (resources, indentation = 0) {
-  const intend = '  '.repeat(indentation)
+function resourceToString (resources, depth = 0, opts) {
+  // merge provided options with defaults so we always have a valid indentation
+  const options = { ...defaultOptions, ...(opts || {}) }
+  // options.indentation can be a number (spaces) or a string (e.g. '\t' or '  ')
+  const indentUnit = typeof options.indentation === 'number' ? ' '.repeat(options.indentation) : String(options.indentation)
+  const indent = indentUnit.repeat(depth)
+
   if (typeof resources === 'string') return JSON.stringify(resources)
   if (Array.isArray(resources)) {
-    return `[${resources.map(it => resourceToString(it)).join(', ')}]`
+    // keep array items inline as before (use depth 0 for items)
+    return `[${resources.map(it => resourceToString(it, 0, options)).join(', ')}]`
   }
   if (resources && '_tag' in resources && resources._tag === translationSymbol) {
     return resources.value.map(it => JSON.stringify(it)).join(' | ')
@@ -26,9 +33,14 @@ function resourceToString (resources, indentation = 0) {
     const entries = Object.entries(resources)
       .sort(([k1], [k2]) => { if (k1 < k2) return -1; if (k1 > k2) return 1; return 0 })
       .map(([k, v]) => {
-        return `"${k.replace(/"/g, '\\"')}": ${resourceToString(v, indentation + 1)}`
+        return `"${k.replace(/"/g, '\\"')}": ${resourceToString(v, depth + 1, options)}`
       })
-    return `{\n${entries.map(it => `${intend}  ${it}`).join(',\n')}\n${intend}}`
+
+    // closing indent should align with the start of the entries for the parent level
+    // depth 0 -> no leading spaces for closing brace
+    const closingIndent = depth > 0 ? indentUnit.repeat(depth - 1) + '  ' : ''
+
+    return `{\n${entries.map(it => `${indent}  ${it}`).join(',\n')}\n${closingIndent}}`
   }
 }
 
@@ -37,7 +49,8 @@ const isPluralKey = (key, { pluralSeparator = defaultOptions.pluralSeparator }) 
   .some((suffix) => key.endsWith(suffix))
 
 export const defaultOptions = {
-  pluralSeparator: '_'
+  pluralSeparator: '_',
+  indentation: 2
 }
 
 export const pluralSuffixes = [

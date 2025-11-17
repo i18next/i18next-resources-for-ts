@@ -64,6 +64,28 @@ const mergedInterface = `interface Resources {
 export default Resources;
 `
 
+// new test: expect indentation option to affect nesting indentation (indentation = 4)
+const mergedInterfaceIndent4 = `interface Resources {
+  "nsA": {
+      "k1": "v1",
+      "k2": "v2",
+      "k3": {
+          "d3": "v3"
+      },
+      "k_error.api_status.404": "The resource you are looking for could not be found.\\nIt may have been moved, deleted, or the link is incorrect."
+  },
+  "nsB-B": {
+      "k21": "v21",
+      "k22": "v22\\nnextline",
+      "k23": {
+          "d23": "v23"
+      }
+  }
+}
+
+export default Resources;
+`
+
 const nsAts = `const ns = {
   "k1": "v1",
   "k2": "v2",
@@ -170,6 +192,12 @@ describe('mergeResourcesAsInterface', () => {
       // console.log(merged)
       should(merged).eql(mergedInterface)
     })
+
+    it('should respect indentation option (number of spaces)', async () => {
+      const merged = mergeResourcesAsInterface([nsA, nsB], { optimize: true, indentation: 4 })
+      // console.log(merged)
+      should(merged).eql(mergedInterfaceIndent4)
+    })
   })
 
   describe('with plurals', () => {
@@ -185,6 +213,70 @@ describe('mergeResourcesAsInterface', () => {
         // console.log(merged)
         should(merged).eql(nsWithPluralsMergedInterfaceOptimized)
       })
+    })
+  })
+
+  describe('deep nested structures', () => {
+    const nsDeep = {
+      name: 'nsDeep',
+      path: '/some/path/locales/en/nsDeep.json',
+      resources: {
+        level1: {
+          level2: {
+            level3: {
+              lvl4: 'v4',
+              arr: ['a', 'b'],
+              deep_key_one: 'one',
+              deep_key_many: 'many'
+            }
+          }
+        }
+      }
+    }
+
+    const deepInterface = `interface Resources {
+  "nsDeep": {
+    "level1": {
+      "level2": {
+        "level3": {
+          "arr": ["a", "b"],
+          "deep_key_many": "many",
+          "deep_key_one": "one",
+          "lvl4": "v4"
+        }
+      }
+    }
+  }
+}
+
+export default Resources;
+`
+
+    const deepInterfaceOptimized = `interface Resources {
+  "nsDeep": {
+    "level1": {
+      "level2": {
+        "level3": {
+          "arr": ["a", "b"],
+          "deep_key": "one" | "many",
+          "lvl4": "v4"
+        }
+      }
+    }
+  }
+}
+
+export default Resources;
+`
+
+    it('should handle deeper nested structures', () => {
+      const ret = mergeResourcesAsInterface([nsDeep])
+      should(ret).eql(deepInterface)
+    })
+
+    it('should optimize plural keys in deep structures', () => {
+      const ret = mergeResourcesAsInterface([nsDeep], { optimize: true })
+      should(ret).eql(deepInterfaceOptimized)
     })
   })
 })
