@@ -59,20 +59,21 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@babel/runtime": "^7.27.0",
-    "yaml": "^2.7.1"
+    "@babel/runtime": "^7.28.4",
+    "chokidar": "^4.0.3",
+    "yaml": "^2.8.1"
   },
   "devDependencies": {
-    "@babel/core": "^7.26.10",
-    "@babel/plugin-transform-runtime": "^7.26.10",
-    "@babel/preset-env": "^7.26.9",
-    "@rollup/plugin-babel": "^6.0.4",
-    "@rollup/plugin-commonjs": "^28.0.3",
-    "@rollup/plugin-node-resolve": "^16.0.1",
+    "@babel/core": "^7.28.5",
+    "@babel/plugin-transform-runtime": "^7.28.5",
+    "@babel/preset-env": "^7.28.5",
+    "@rollup/plugin-babel": "^6.1.0",
+    "@rollup/plugin-commonjs": "^29.0.0",
+    "@rollup/plugin-node-resolve": "^16.0.3",
     "@rollup/plugin-terser": "0.4.4",
     "@types/mocha": "^10.0.10",
-    "@typescript-eslint/eslint-plugin": "^8.29.1",
-    "@typescript-eslint/parser": "^8.29.1",
+    "@typescript-eslint/eslint-plugin": "^8.46.4",
+    "@typescript-eslint/parser": "^8.46.4",
     "babel-plugin-add-module-exports": "^1.0.4",
     "eslint": "8.57.1",
     "eslint-config-standard": "17.1.0",
@@ -81,14 +82,14 @@
     "eslint-plugin-promise": "6.6.0",
     "eslint-plugin-require-path-exists": "1.1.9",
     "eslint-plugin-standard": "5.0.0",
-    "i18next": "^24.2.3",
+    "i18next": "^25.6.2",
     "i18next-chained-backend": "^4.6.2",
-    "mocha": "^11.1.0",
-    "rollup": "^4.39.0",
+    "mocha": "^11.7.5",
+    "rollup": "^4.53.2",
     "should": "^13.2.3",
-    "sinon": "^20.0.0",
-    "tsd": "^0.31.2",
-    "typescript": "^5.8.3"
+    "sinon": "^21.0.0",
+    "tsd": "^0.33.0",
+    "typescript": "^5.9.3"
   },
   "tsd": {
     "directory": "test/types"
