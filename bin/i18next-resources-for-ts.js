@@ -50,7 +50,7 @@ outputPath = path.resolve(outputPath)
 const commentSection = comment ? `/**\n * ${comment}\n */\n` : ''
 
 // helper to decide which file extensions are relevant for watching
-const watchedExts = ['.json', '.yml', '.yaml']
+const watchedExts = ['.json', '.yml', '.yaml', '.js', '.ts', '.mts', '.cts', '.cjs', '.mjs']
 
 // compute some cli flags that affect behavior
 const convertToTsFlag = cliArgs.indexOf('-cts') > 0
