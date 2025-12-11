@@ -7,7 +7,7 @@ async function main () {
   const { default: getNamespaces } = await import('./getNamespaces.js')
 
   // Dynamically import the main module functions
-  const mainModule = await import('../')
+  const mainModule = await import('../index.js')
   const {
     tocForResources,
     mergeResources,
