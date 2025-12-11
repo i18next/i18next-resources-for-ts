@@ -1,7 +1,10 @@
-const fs = require('fs')
-const path = require('path')
-const YAML = require('yaml')
-const swc = require('@swc/core')
+import fs from 'fs'
+import path from 'path'
+import YAML from 'yaml'
+import swc from '@swc/core'
+import { createRequire } from 'module'
+
+const require = createRequire(import.meta.url)
 
 const parsers = {
   '.json': JSON.parse,
@@ -33,55 +36,102 @@ function getAllFiles (srcpath) {
   return files
 }
 
-module.exports = (p) => {
-  const allFiles = getAllFiles(p)
+// Helper function to dynamically import a module
+async function dynamicImport (filePath) {
+  try {
+    const ext = path.extname(filePath)
 
-  return allFiles.map((file) => {
-    const ext = path.extname(file)
-    let namespace
-
+    // For JSON and YAML files, we can parse them directly
     if (parsers[ext]) {
-      namespace = parsers[ext](fs.readFileSync(file, 'utf-8'))
-    } else {
+      return parsers[ext](fs.readFileSync(filePath, 'utf-8'))
+    }
+
+    // For JavaScript/TypeScript files, we need to compile them first
+    if (['.ts', '.mts', '.cts', '.js', '.mjs'].includes(ext)) {
+      const content = fs.readFileSync(filePath, 'utf8')
+      const { code } = swc.transformSync(content, {
+        filename: filePath,
+        jsc: {
+          parser: { syntax: 'typescript' },
+          target: 'es2019'
+        },
+        module: { type: 'es6' }
+      })
+
+      // Write compiled code to a temporary file and import it
+      const tempDir = path.join(process.cwd(), '.temp')
+      if (!fs.existsSync(tempDir)) {
+        fs.mkdirSync(tempDir)
+      }
+
+      const tempFilePath = path.join(tempDir, `${Date.now()}_${path.basename(filePath)}.js`)
+      fs.writeFileSync(tempFilePath, code)
+
       try {
-        if (['.ts', '.mts', '.cts', '.js', '.mjs', '.cjs'].includes(ext)) {
-          const content = fs.readFileSync(file, 'utf8')
-          const { code } = swc.transformSync(content, {
-            filename: file,
-            jsc: {
-              parser: { syntax: 'typescript' },
-              target: 'es2019'
-            },
-            module: { type: 'commonjs' }
-          })
+        // Import the compiled module
+        const module = await import(tempFilePath)
+        const namespace = module.default || module
 
-          const Module = require('module')
-          const m = new Module(file, module.parent)
-          m.filename = file
-          m.paths = Module._nodeModulePaths(path.dirname(file))
-          m._compile(code, file)
-          namespace = m.exports
-        } else {
-          const resolved = require.resolve(file)
-          delete require.cache[resolved]
-          namespace = require(resolved)
-        }
+        // Clean up temp file
+        fs.unlinkSync(tempFilePath)
 
-        if (namespace && namespace.default) namespace = namespace.default
+        return namespace
       } catch (err) {
-        console.error(`Failed to load ${file}:`, err.message)
-        return null
+        // Clean up temp file even if import fails
+        if (fs.existsSync(tempFilePath)) {
+          fs.unlinkSync(tempFilePath)
+        }
+        throw err
       }
     }
 
-    const sepFile = file.split(path.sep)
-    const fileName = sepFile[sepFile.length - 1]
-    const name = path.parse(fileName).name
-
-    return {
-      name,
-      path: file,
-      resources: namespace
+    // For CommonJS files (.cjs), use require
+    if (ext === '.cjs') {
+      const resolved = require.resolve(filePath)
+      // Clear cache to ensure fresh load
+      delete require.cache[resolved]
+      return require(resolved)
     }
-  }).filter(Boolean)
+
+    // For other file types, try to import them directly
+    return await import(filePath)
+  } catch (err) {
+    console.error(`Failed to load ${filePath}:`, err.message)
+    return null
+  }
+}
+
+export default async (p) => {
+  const allFiles = getAllFiles(p)
+
+  const results = []
+  for (const file of allFiles) {
+    try {
+      const namespace = await dynamicImport(file)
+
+      if (namespace === null) {
+        continue
+      }
+
+      const sepFile = file.split(path.sep)
+      const fileName = sepFile[sepFile.length - 1]
+      const name = path.parse(fileName).name
+
+      results.push({
+        name,
+        path: file,
+        resources: namespace
+      })
+    } catch (err) {
+      console.error(`Failed to process ${file}:`, err.message)
+    }
+  }
+
+  // Clean up temp directory if it exists
+  const tempDir = path.join(process.cwd(), '.temp')
+  if (fs.existsSync(tempDir)) {
+    fs.rmSync(tempDir, { recursive: true, force: true })
+  }
+
+  return results.filter(Boolean)
 }

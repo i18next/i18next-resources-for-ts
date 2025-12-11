@@ -1,11 +1,7 @@
-import { createRequire } from 'module'
 import should from 'should'
 import fs from 'fs'
 import path from 'path'
 import os from 'os'
-
-const require = createRequire(import.meta.url)
-const getNamespaces = require('../bin/getNamespaces.js')
 
 let fixturesDir
 
@@ -20,10 +16,10 @@ describe('getNamespaces formats', () => {
     fs.writeFileSync(path.join(fixturesDir, 'ns2.yml'), 'key: value_yml')
     fs.writeFileSync(path.join(fixturesDir, 'ns3.yaml'), 'key: value_yaml')
 
-    // JS (CommonJS)
-    fs.writeFileSync(path.join(fixturesDir, 'ns4.js'), "module.exports = { key: 'value_js' }")
+    // JS (ESM)
+    fs.writeFileSync(path.join(fixturesDir, 'ns4.js'), "export default { key: 'value_js' }")
 
-    // CJS
+    // CJS - need to use .cjs extension for CommonJS in ESM environment
     fs.writeFileSync(path.join(fixturesDir, 'ns5.cjs'), "module.exports = { key: 'value_cjs' }")
 
     // TS
@@ -45,8 +41,9 @@ describe('getNamespaces formats', () => {
     }
   })
 
-  it('should load all supported formats', () => {
-    const namespaces = getNamespaces(fixturesDir)
+  it('should load all supported formats', async () => {
+    const { default: getNamespaces } = await import('../bin/getNamespaces.js')
+    const namespaces = await getNamespaces(fixturesDir)
 
     should(namespaces).be.an.Array()
     should(namespaces.length).equal(9)
