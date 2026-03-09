@@ -33,7 +33,7 @@ function resourceToString (resources, depth = 0, opts) {
     const entries = Object.entries(resources)
       .sort(([k1], [k2]) => { if (k1 < k2) return -1; if (k1 > k2) return 1; return 0 })
       .map(([k, v]) => {
-        return `"${k.replace(/"/g, '\\"')}": ${resourceToString(v, depth + 1, options)}`
+        return `${JSON.stringify(k)}: ${resourceToString(v, depth + 1, options)}`
       })
 
     // closing indent should align with the start of the entries for the parent level
