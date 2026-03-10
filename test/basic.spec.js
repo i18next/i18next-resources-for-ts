@@ -43,6 +43,18 @@ const resources = {
 export default resources;
 `
 
+// NEW TEST: expect double-quote variant when quotes option is 'double'
+const tocDoubleQuotes = `import nsA from "../locales/en/nsA.json";
+import nsBB from "../locales/en/nsB-B.json";
+
+const resources = {
+  nsA,
+  "nsB-B": nsBB
+} as const;
+
+export default resources;
+`
+
 const mergedInterface = `interface Resources {
   "nsA": {
     "k1": "v1",
@@ -80,6 +92,28 @@ const mergedInterfaceIndent4 = `interface Resources {
       "k23": {
           "d23": "v23"
       }
+  }
+}
+
+export default Resources;
+`
+
+// indentation as a tab character string
+const mergedInterfaceIndentTab = `interface Resources {
+  "nsA": {
+\t  "k1": "v1",
+\t  "k2": "v2",
+\t  "k3": {
+\t\t  "d3": "v3"
+\t  },
+\t  "k_error.api_status.404": "The resource you are looking for could not be found.\\nIt may have been moved, deleted, or the link is incorrect."
+  },
+  "nsB-B": {
+\t  "k21": "v21",
+\t  "k22": "v22\\nnextline",
+\t  "k23": {
+\t\t  "d23": "v23"
+\t  }
   }
 }
 
@@ -129,11 +163,41 @@ const nsWithPluralsMergedInterfaceOptimized = `interface Resources {
 export default Resources;
 `
 
+// NEW TEST: namespace with numeric and boolean values
+const nsWithPrimitives = {
+  name: 'nsWithPrimitives',
+  path: '/some/path/locales/en/nsWithPrimitives.json',
+  resources: {
+    count: 42,
+    enabled: true,
+    ratio: 0.5,
+    disabled: false
+  }
+}
+
+const nsWithPrimitivesMergedInterface = `interface Resources {
+  "nsWithPrimitives": {
+    "count": 42,
+    "disabled": false,
+    "enabled": true,
+    "ratio": 0.5
+  }
+}
+
+export default Resources;
+`
+
 describe('tocForResources', () => {
   it('should generate a toc file content from namespace resources', async () => {
     const tocRet = tocForResources([nsA, nsB], '/some/path/@types')
     // console.log(tocRet)
     should(tocRet).eql(toc)
+  })
+
+  // quotes option 'double' should be respected (not overridden by defaults)
+  it('should respect the double quotes option', async () => {
+    const tocRet = tocForResources([nsA, nsB], '/some/path/@types', { quotes: 'double' })
+    should(tocRet).eql(tocDoubleQuotes)
   })
 
   describe('with target filename', () => {
@@ -198,6 +262,12 @@ describe('mergeResourcesAsInterface', () => {
       // console.log(merged)
       should(merged).eql(mergedInterfaceIndent4)
     })
+
+    // indentation as a string (tab character)
+    it('should respect indentation option (tab string)', async () => {
+      const merged = mergeResourcesAsInterface([nsA, nsB], { optimize: true, indentation: '\t' })
+      should(merged).eql(mergedInterfaceIndentTab)
+    })
   })
 
   describe('with plurals', () => {
@@ -213,6 +283,16 @@ describe('mergeResourcesAsInterface', () => {
         // console.log(merged)
         should(merged).eql(nsWithPluralsMergedInterfaceOptimized)
       })
+    })
+  })
+
+  // number and boolean values should not produce `undefined` in output
+  describe('with numeric and boolean values', () => {
+    it('should correctly render number and boolean values', async () => {
+      const merged = mergeResourcesAsInterface([nsWithPrimitives])
+      should(merged).eql(nsWithPrimitivesMergedInterface)
+      // Sanity check: no `undefined` should appear in output
+      should(merged).not.containEql('undefined')
     })
   })
 

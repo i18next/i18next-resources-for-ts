@@ -1,5 +1,6 @@
 import fs from 'fs'
 import path from 'path'
+import { randomUUID } from 'crypto'
 import YAML from 'yaml'
 import swc from '@swc/core'
 import { createRequire } from 'module'
@@ -58,13 +59,13 @@ async function dynamicImport (filePath) {
         module: { type: 'es6' }
       })
 
-      // Write compiled code to a temporary file and import it
+      // Write compiled code to a temporary file and import it.
       const tempDir = path.join(process.cwd(), '.temp')
       if (!fs.existsSync(tempDir)) {
         fs.mkdirSync(tempDir)
       }
 
-      const tempFilePath = path.join(tempDir, `${Date.now()}_${path.basename(filePath)}.js`)
+      const tempFilePath = path.join(tempDir, `${randomUUID()}_${path.basename(filePath)}.js`)
       fs.writeFileSync(tempFilePath, code)
 
       try {

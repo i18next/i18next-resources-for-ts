@@ -9,7 +9,7 @@ function getVarName (name) {
 }
 
 function tocForResources (namespaces, toPath, options = {}) {
-  const opt = { ...options, ...defaults }
+  const opt = { ...defaults, ...options }
   const quoteChar = opt.quotes === 'single' ? '\'' : '"'
 
   let toc = ''

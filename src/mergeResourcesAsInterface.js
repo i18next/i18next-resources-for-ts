@@ -22,6 +22,11 @@ function resourceToString (resources, depth = 0, opts) {
   const indent = indentUnit.repeat(depth)
 
   if (typeof resources === 'string') return JSON.stringify(resources)
+
+  if (typeof resources === 'number' || typeof resources === 'boolean') return String(resources)
+
+  if (resources === null) return 'null'
+
   if (Array.isArray(resources)) {
     // keep array items inline as before (use depth 0 for items)
     return `[${resources.map(it => resourceToString(it, 0, options)).join(', ')}]`
@@ -29,7 +34,7 @@ function resourceToString (resources, depth = 0, opts) {
   if (resources && '_tag' in resources && resources._tag === translationSymbol) {
     return resources.value.map(it => JSON.stringify(it)).join(' | ')
   }
-  if (typeof resources === 'object' && resources !== null) {
+  if (typeof resources === 'object') {
     const entries = Object.entries(resources)
       .sort(([k1], [k2]) => { if (k1 < k2) return -1; if (k1 > k2) return 1; return 0 })
       .map(([k, v]) => {
@@ -104,7 +109,7 @@ export function groupPluralKeys (entries, options) {
       const depluralized = maybe
       if (depluralized in acc) {
         const existing = acc[depluralized]
-        acc[depluralized] = { _tag: translationSymbol, value: [...existing.value, v] } // just use the existing one
+        acc[depluralized] = { _tag: translationSymbol, value: [...existing.value, v] }
         return acc
       } else {
         acc[depluralized] = { _tag: translationSymbol, value: [v] }

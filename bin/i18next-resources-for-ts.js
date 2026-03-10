@@ -44,7 +44,9 @@ async function main () {
   const outputArgIndex = cliArgs.indexOf('-o')
   const commentArgIndex = cliArgs.indexOf('-c')
   const optimizeArgIndex = cliArgs.indexOf('--optimize')
-  const watchArgIndex = cliArgs.indexOf('-w') > -1 || cliArgs.indexOf('--watch') > -1
+
+  const watchMode = cliArgs.indexOf('-w') > -1 || cliArgs.indexOf('--watch') > -1
+
   if (inputArgIndex > -1 && cliArgs[inputArgIndex + 1]) inputPath = cliArgs[inputArgIndex + 1]
   if (outputArgIndex > -1 && cliArgs[outputArgIndex + 1]) outputPath = cliArgs[outputArgIndex + 1]
   if (commentArgIndex > -1 && cliArgs[commentArgIndex + 1]) comment = cliArgs[commentArgIndex + 1]
@@ -117,7 +119,7 @@ async function main () {
     }
   }
 
-  if (!watchArgIndex) {
+  if (!watchMode) {
     // single run
     await runOnce()
   } else {
