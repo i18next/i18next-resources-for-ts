@@ -281,6 +281,55 @@ export default Resources;
   })
 })
 
+describe('mergeResourcesAsInterface special chars in keys', () => {
+  const nsSpecialKeys = {
+    name: 'nsSpecial',
+    path: '/some/path/locales/en/nsSpecial.json',
+    resources: {
+      'Line one.\nLine two': 'value with newline key',
+      'Tab\there': 'value with tab key',
+      'Back\\slash': 'value with backslash key',
+      'Quote"inside': 'value with quote key',
+      'Mixed\n\t\\"chars': 'value with mixed special chars'
+    }
+  }
+
+  const expectedSpecialKeysInterface = `interface Resources {
+  "nsSpecial": {
+    "Back\\\\slash": "value with backslash key",
+    "Line one.\\nLine two": "value with newline key",
+    "Mixed\\n\\t\\\\\\"chars": "value with mixed special chars",
+    "Quote\\"inside": "value with quote key",
+    "Tab\\there": "value with tab key"
+  }
+}
+
+export default Resources;
+`
+
+  it('should correctly escape special characters in keys', () => {
+    const merged = mergeResourcesAsInterface([nsSpecialKeys])
+    should(merged).eql(expectedSpecialKeysInterface)
+  })
+
+  it('should produce valid TypeScript (no literal newlines in keys)', () => {
+    const merged = mergeResourcesAsInterface([nsSpecialKeys])
+    // Ensure no unescaped newlines appear inside key strings
+    // Split into lines and check none have an unclosed quote
+    const lines = merged.split('\n')
+    for (const line of lines) {
+      const trimmed = line.trim()
+      if (trimmed.startsWith('"') && trimmed.includes(':')) {
+        // Key line - the key portion should not contain literal newline/tab
+        const keyMatch = trimmed.match(/^"([^"]*(?:\\"[^"]*)*)":\s/)
+        if (keyMatch) {
+          should(keyMatch[1]).not.match(/[\n\t]/)
+        }
+      }
+    }
+  })
+})
+
 describe('json2ts', () => {
   it('should generate a ts file content from resources', async () => {
     const ret = json2ts(nsA.resources)
