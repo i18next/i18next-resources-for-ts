@@ -410,6 +410,89 @@ export default Resources;
   })
 })
 
+// --- interpolation placeholder normalisation (https://github.com/i18next/i18next-cli/issues/218) ---
+// Translation values authored with spaces inside {{ }} delimiters
+// (e.g. "{{ variable }}") must be normalised to "{{variable}}" in the
+// emitted .d.ts.  Without this, TypeScript derives " variable " (with
+// spaces) as the expected options key, producing an unsatisfiable type.
+describe('mergeResourcesAsInterface interpolation normalisation', () => {
+  const nsSpaced = {
+    name: 'nsSpaced',
+    path: '/some/path/locales/en/nsSpaced.json',
+    resources: {
+      // spaced — the problematic form from issue https://github.com/i18next/i18next-cli/issues/218
+      greeting: 'Hello {{ name }}!',
+      // already correct — must be left unchanged
+      farewell: 'Goodbye {{name}}!',
+      // multiple spaced placeholders in a single value
+      multi: '{{ greeting }}, {{ name }}!',
+      // no placeholder at all
+      plain: 'No interpolation here'
+    }
+  }
+
+  // The emitted string literals must have trimmed placeholder names.
+  const nsSpacedInterface = `interface Resources {
+  "nsSpaced": {
+    "farewell": "Goodbye {{name}}!",
+    "greeting": "Hello {{name}}!",
+    "multi": "{{greeting}}, {{name}}!",
+    "plain": "No interpolation here"
+  }
+}
+
+export default Resources;
+`
+
+  it('should normalise spaced {{ placeholders }} in emitted string literals', () => {
+    const merged = mergeResourcesAsInterface([nsSpaced])
+    should(merged).eql(nsSpacedInterface)
+  })
+
+  it('should not alter already-correct {{placeholders}}', () => {
+    const merged = mergeResourcesAsInterface([nsSpaced])
+    // The farewell value must be passed through unchanged
+    should(merged).containEql('"farewell": "Goodbye {{name}}!"')
+  })
+
+  it('should not emit any spaced {{ placeholder }} patterns in output', () => {
+    const merged = mergeResourcesAsInterface([nsSpaced])
+    // No {{ followed by a space should appear in the output
+    should(merged).not.match(/\{\{\s/)
+  })
+
+  describe('with optimize flag (plural union branch)', () => {
+    const nsSpacedPlurals = {
+      name: 'nsSpacedPlurals',
+      path: '/some/path/locales/en/nsSpacedPlurals.json',
+      resources: {
+        // plural pair — both values carry spaced placeholders
+        item_one: '{{ count }} item',
+        item_many: '{{ count }} items'
+      }
+    }
+
+    const nsSpacedPluralsOptimized = `interface Resources {
+  "nsSpacedPlurals": {
+    "item": "{{count}} item" | "{{count}} items"
+  }
+}
+
+export default Resources;
+`
+
+    it('should normalise spaced placeholders inside union members', () => {
+      const merged = mergeResourcesAsInterface([nsSpacedPlurals], { optimize: true })
+      should(merged).eql(nsSpacedPluralsOptimized)
+    })
+
+    it('should not emit any spaced {{ placeholder }} patterns in optimized output', () => {
+      const merged = mergeResourcesAsInterface([nsSpacedPlurals], { optimize: true })
+      should(merged).not.match(/\{\{\s/)
+    })
+  })
+})
+
 describe('json2ts', () => {
   it('should generate a ts file content from resources', async () => {
     const ret = json2ts(nsA.resources)

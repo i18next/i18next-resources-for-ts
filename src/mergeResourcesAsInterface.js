@@ -14,6 +14,25 @@ function mergeResourcesAsInterface (namespaces, options = {}) {
   return interfaceFileContent
 }
 
+/**
+ * Normalise i18next interpolation placeholders by trimming whitespace inside
+ * the delimiters, e.g. `{{ variable }}` → `{{variable}}`.
+ *
+ * i18next accepts both forms at runtime, but the TypeScript compiler derives
+ * the expected options-object shape by parsing the string literal in the
+ * generated `.d.ts` file. When the placeholder contains surrounding spaces the
+ * inferred key becomes `" variable "` (with spaces) instead of `"variable"`,
+ * making TypeScript demand an extra `{ " variable ": unknown }` property that
+ * can never be satisfied alongside `{ variable: string }`.
+ *
+ * Normalising here — before values are written into the declaration file —
+ * keeps the emitted types consistent regardless of how authors format their
+ * JSON values.
+ */
+function normalizeInterpolation (str) {
+  return str.replace(/\{\{\s+(.*?)\s+\}\}/g, (_, inner) => `{{${inner.trim()}}}`)
+}
+
 function resourceToString (resources, depth = 0, opts) {
   // merge provided options with defaults so we always have a valid indentation
   const options = { ...defaultOptions, ...(opts || {}) }
@@ -21,7 +40,7 @@ function resourceToString (resources, depth = 0, opts) {
   const indentUnit = typeof options.indentation === 'number' ? ' '.repeat(options.indentation) : String(options.indentation)
   const indent = indentUnit.repeat(depth)
 
-  if (typeof resources === 'string') return JSON.stringify(resources)
+  if (typeof resources === 'string') return JSON.stringify(normalizeInterpolation(resources))
 
   if (typeof resources === 'number' || typeof resources === 'boolean') return String(resources)
 
@@ -32,7 +51,8 @@ function resourceToString (resources, depth = 0, opts) {
     return `[${resources.map(it => resourceToString(it, 0, options)).join(', ')}]`
   }
   if (resources && '_tag' in resources && resources._tag === translationSymbol) {
-    return resources.value.map(it => JSON.stringify(it)).join(' | ')
+    // normalise here too — these strings are emitted directly as union members
+    return resources.value.map(it => JSON.stringify(normalizeInterpolation(it))).join(' | ')
   }
   if (typeof resources === 'object') {
     const entries = Object.entries(resources)
