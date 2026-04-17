@@ -55,7 +55,7 @@ const resources = {
 export default resources;
 `
 
-const mergedInterface = `interface Resources {
+const mergedInterface = `export default interface Resources {
   "nsA": {
     "k1": "v1",
     "k2": "v2",
@@ -72,12 +72,10 @@ const mergedInterface = `interface Resources {
     }
   }
 }
-
-export default Resources;
 `
 
 // new test: expect indentation option to affect nesting indentation (indentation = 4)
-const mergedInterfaceIndent4 = `interface Resources {
+const mergedInterfaceIndent4 = `export default interface Resources {
   "nsA": {
       "k1": "v1",
       "k2": "v2",
@@ -94,12 +92,10 @@ const mergedInterfaceIndent4 = `interface Resources {
       }
   }
 }
-
-export default Resources;
 `
 
 // indentation as a tab character string
-const mergedInterfaceIndentTab = `interface Resources {
+const mergedInterfaceIndentTab = `export default interface Resources {
   "nsA": {
 \t  "k1": "v1",
 \t  "k2": "v2",
@@ -116,8 +112,6 @@ const mergedInterfaceIndentTab = `interface Resources {
 \t  }
   }
 }
-
-export default Resources;
 `
 
 const nsAts = `const ns = {
@@ -142,25 +136,21 @@ const nsWithPlurals = {
   }
 }
 
-const nsWithPluralsMergedInterface = `interface Resources {
+const nsWithPluralsMergedInterface = `export default interface Resources {
   "nsWithPlurals": {
     "abc_many": "many",
     "abc_one": "one",
     "def": ["ghi", "jkl"]
   }
 }
-
-export default Resources;
 `
 
-const nsWithPluralsMergedInterfaceOptimized = `interface Resources {
+const nsWithPluralsMergedInterfaceOptimized = `export default interface Resources {
   "nsWithPlurals": {
     "abc": "one" | "many",
     "def": ["ghi", "jkl"]
   }
 }
-
-export default Resources;
 `
 
 // NEW TEST: namespace with numeric and boolean values
@@ -175,7 +165,7 @@ const nsWithPrimitives = {
   }
 }
 
-const nsWithPrimitivesMergedInterface = `interface Resources {
+const nsWithPrimitivesMergedInterface = `export default interface Resources {
   "nsWithPrimitives": {
     "count": 42,
     "disabled": false,
@@ -183,8 +173,6 @@ const nsWithPrimitivesMergedInterface = `interface Resources {
     "ratio": 0.5
   }
 }
-
-export default Resources;
 `
 
 describe('tocForResources', () => {
@@ -314,7 +302,7 @@ describe('mergeResourcesAsInterface', () => {
       }
     }
 
-    const deepInterface = `interface Resources {
+    const deepInterface = `export default interface Resources {
   "nsDeep": {
     "level1": {
       "level2": {
@@ -328,11 +316,9 @@ describe('mergeResourcesAsInterface', () => {
     }
   }
 }
-
-export default Resources;
 `
 
-    const deepInterfaceOptimized = `interface Resources {
+    const deepInterfaceOptimized = `export default interface Resources {
   "nsDeep": {
     "level1": {
       "level2": {
@@ -345,8 +331,6 @@ export default Resources;
     }
   }
 }
-
-export default Resources;
 `
 
     it('should handle deeper nested structures', () => {
@@ -374,7 +358,7 @@ describe('mergeResourcesAsInterface special chars in keys', () => {
     }
   }
 
-  const expectedSpecialKeysInterface = `interface Resources {
+  const expectedSpecialKeysInterface = `export default interface Resources {
   "nsSpecial": {
     "Back\\\\slash": "value with backslash key",
     "Line one.\\nLine two": "value with newline key",
@@ -383,8 +367,6 @@ describe('mergeResourcesAsInterface special chars in keys', () => {
     "Tab\\there": "value with tab key"
   }
 }
-
-export default Resources;
 `
 
   it('should correctly escape special characters in keys', () => {
@@ -432,7 +414,7 @@ describe('mergeResourcesAsInterface interpolation normalisation', () => {
   }
 
   // The emitted string literals must have trimmed placeholder names.
-  const nsSpacedInterface = `interface Resources {
+  const nsSpacedInterface = `export default interface Resources {
   "nsSpaced": {
     "farewell": "Goodbye {{name}}!",
     "greeting": "Hello {{name}}!",
@@ -440,8 +422,6 @@ describe('mergeResourcesAsInterface interpolation normalisation', () => {
     "plain": "No interpolation here"
   }
 }
-
-export default Resources;
 `
 
   it('should normalise spaced {{ placeholders }} in emitted string literals', () => {
@@ -472,13 +452,11 @@ export default Resources;
       }
     }
 
-    const nsSpacedPluralsOptimized = `interface Resources {
+    const nsSpacedPluralsOptimized = `export default interface Resources {
   "nsSpacedPlurals": {
     "item": "{{count}} item" | "{{count}} items"
   }
 }
-
-export default Resources;
 `
 
     it('should normalise spaced placeholders inside union members', () => {

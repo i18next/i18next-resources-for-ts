@@ -2,7 +2,7 @@ import mergeResources from './mergeResources.js'
 
 function mergeResourcesAsInterface (namespaces, options = {}) {
   let resources = mergeResources(namespaces)
-  let interfaceFileContent = 'interface Resources '
+  let interfaceFileContent = 'export default interface Resources '
 
   if (options.optimize) {
     resources = groupPluralKeys(Object.entries(resources), options)
@@ -10,7 +10,7 @@ function mergeResourcesAsInterface (namespaces, options = {}) {
 
   // pass options so resourceToString can use custom indentation
   interfaceFileContent += resourceToString(resources, 0, options)
-  interfaceFileContent += '\n\nexport default Resources;\n'
+  interfaceFileContent += '\n'
   return interfaceFileContent
 }
 

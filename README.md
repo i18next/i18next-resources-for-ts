@@ -113,7 +113,7 @@ const nsB = {
 // you can optionaly provide a second argument, with options:
 // { optimize: boolean } - if true (false is default) it will optimize the interface, to be `enableSelector: "optimize"` compatible (see TypeScript i18next docs)
 const definition = mergeResourcesAsInterface([nsA, nsB])
-// interface Resources {
+// export default interface Resources {
 //   nsA: {
 //     k1: 'v1',
 //     k2: 'v2',
@@ -129,8 +129,6 @@ const definition = mergeResourcesAsInterface([nsA, nsB])
 //     }
 //   }
 // }
-
-// export default Resources;
 ```
 
 ## Usage via CLI:
