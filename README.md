@@ -218,7 +218,7 @@ or
 <h3 align="center">Gold Sponsors</h3>
 
 <p align="center">
-  <a href="https://locize.com/" target="_blank">
+  <a href="https://www.locize.com/?utm_source=i18next_resources_for_ts_readme&utm_medium=github&utm_campaign=readme" target="_blank">
     <img src="https://raw.githubusercontent.com/i18next/i18next/master/assets/locize_sponsor_240.gif" width="240px">
   </a>
 </p>
@@ -227,10 +227,10 @@ or
 
 **From the creators of i18next: localization as a service - locize.com**
 
-A translation management system built around the i18next ecosystem - [locize.com](https://locize.com).
+A translation management system built around the i18next ecosystem - [locize.com](https://www.locize.com?utm_source=i18next_resources_for_ts_readme&utm_medium=github&utm_campaign=readme).
 
 ![locize](https://www.locize.com/img/ads/github_locize.png)
 
-With using [locize](http://locize.com/?utm_source=react_i18next_readme&utm_medium=github) you directly support the future of i18next.
+With using [locize](https://www.locize.com/?utm_source=i18next_resources_for_ts_readme&utm_medium=github&utm_campaign=readme) you directly support the future of i18next.
 
 ---
