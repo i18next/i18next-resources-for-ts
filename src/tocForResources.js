@@ -1,11 +1,19 @@
 import defaults from './defaults.js'
 import relative from './relative.js'
 
+// paths and names come from the file system, so they must never reach the
+// generated source unescaped (GHSA-xfhx-x4r4-x799)
 function getVarName (name) {
-  if (name.indexOf('-') > 0 || name.indexOf(' ') > 0) {
-    return name.replace(/[- ]/g, '')
-  }
   return name
+    .replace(/[- ]/g, '')
+    .replace(/[^\p{ID_Continue}$]/gu, '_')
+    .replace(/^(?![\p{ID_Start}$_])/u, '_')
+}
+
+function quote (str, quoteChar) {
+  const json = JSON.stringify(str)
+  if (quoteChar === '"') return json
+  return `'${json.slice(1, -1).replace(/\\"/g, '"').replace(/'/g, '\\\'')}'`
 }
 
 function tocForResources (namespaces, toPath, options = {}) {
@@ -16,18 +24,15 @@ function tocForResources (namespaces, toPath, options = {}) {
 
   namespaces.forEach((ns) => {
     const nameToUse = getVarName(ns.name)
-    if (ns.tsPath) {
-      toc += `import ${nameToUse} from ${quoteChar}${relative(toPath, ns.tsPath.replace('.ts', ''))}${quoteChar};\n`
-    } else {
-      toc += `import ${nameToUse} from ${quoteChar}${relative(toPath, ns.path)}${quoteChar};\n`
-    }
+    const importPath = ns.tsPath ? relative(toPath, ns.tsPath.replace('.ts', '')) : relative(toPath, ns.path)
+    toc += `import ${nameToUse} from ${quote(importPath, quoteChar)};\n`
   })
 
   toc += '\nconst resources = {'
   namespaces.forEach((ns, i) => {
     const nameToUse = getVarName(ns.name)
     if (nameToUse !== ns.name) {
-      toc += `\n  ${quoteChar}${ns.name}${quoteChar}: ${nameToUse}`
+      toc += `\n  ${quote(ns.name, quoteChar)}: ${nameToUse}`
     } else {
       toc += `\n  ${ns.name}`
     }

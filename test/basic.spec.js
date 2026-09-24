@@ -5,6 +5,7 @@ import {
   json2ts
 } from '../index.js'
 import should from 'should'
+import ts from 'typescript'
 
 const nsA = {
   name: 'nsA',
@@ -225,6 +226,72 @@ describe('tocForResources', () => {
         // console.log(tocRet)
         should(tocRet).eql(toc)
       })
+    })
+  })
+
+  // GHSA-xfhx-x4r4-x799: paths and names must not break out of the generated source
+  describe('with untrusted paths and names', () => {
+    // the generated module must only contain the imports, the resources const and the export
+    const statementsOf = (src) => ts.createSourceFile('resources.ts', src, ts.ScriptTarget.Latest).statements
+    const assertOnlyImports = (src, specifiers) => {
+      const statements = statementsOf(src)
+      should(statements.length).eql(specifiers.length + 2)
+      specifiers.forEach((s, i) => {
+        should(statements[i].kind).eql(ts.SyntaxKind.ImportDeclaration)
+        should(statements[i].moduleSpecifier.text).eql(s)
+      })
+      should(statements[specifiers.length].kind).eql(ts.SyntaxKind.VariableStatement)
+      should(statements[specifiers.length + 1].kind).eql(ts.SyntaxKind.ExportAssignment)
+    }
+
+    it('should escape a single quote in ns.path', () => {
+      const ns = { name: 'safe', path: "/some/path/locales/en/x'; globalThis.PWNED = true; '/safe.json" }
+      const tocRet = tocForResources([ns], '/some/path/@types')
+      should(tocRet).startWith("import safe from '../locales/en/x\\'; globalThis.PWNED = true; \\'/safe.json';\n")
+      assertOnlyImports(tocRet, ["../locales/en/x'; globalThis.PWNED = true; '/safe.json"])
+    })
+
+    it('should escape a double quote in ns.tsPath with the double quotes option', () => {
+      const ns = { name: 'safe', tsPath: '/some/path/locales/en/x"; globalThis.PWNED = true; "/safe.ts' }
+      const tocRet = tocForResources([ns], '/some/path/@types', { quotes: 'double' })
+      should(tocRet).startWith('import safe from "../locales/en/x\\"; globalThis.PWNED = true; \\"/safe";\n')
+      assertOnlyImports(tocRet, ['../locales/en/x"; globalThis.PWNED = true; "/safe'])
+    })
+
+    it('should escape backslashes and newlines in paths', () => {
+      const ns = { name: 'safe', path: "/some/path/locales/en/a\\'\nglobalThis.PWNED = true//safe.json" }
+      assertOnlyImports(tocForResources([ns], '/some/path/@types'), ["/some/path/locales/en/a\\'\nglobalThis.PWNED = true//safe.json"])
+    })
+
+    it('should turn a malicious ns.name into a safe identifier and a quoted key', () => {
+      const name = "{a}from'node:fs';globalThis.PWNED=1;import{b}"
+      const tocRet = tocForResources([{ name, path: '/some/path/locales/en/a.json' }], '/some/path/@types')
+      should(tocRet).eql(`import _a_from_node_fs__globalThis_PWNED_1_import_b_ from '../locales/en/a.json';
+
+const resources = {
+  '{a}from\\'node:fs\\';globalThis.PWNED=1;import{b}': _a_from_node_fs__globalThis_PWNED_1_import_b_
+} as const;
+
+export default resources;
+`)
+      assertOnlyImports(tocRet, ['../locales/en/a.json'])
+    })
+
+    it('should keep unicode names and prefix names starting with a digit', () => {
+      const tocRet = tocForResources([
+        { name: 'übersetzung', path: '/some/path/locales/en/übersetzung.json' },
+        { name: '404', path: '/some/path/locales/en/404.json' }
+      ], '/some/path/@types')
+      should(tocRet).eql(`import übersetzung from '../locales/en/übersetzung.json';
+import _404 from '../locales/en/404.json';
+
+const resources = {
+  übersetzung,
+  '404': _404
+} as const;
+
+export default resources;
+`)
     })
   })
 })
