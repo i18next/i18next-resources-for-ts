@@ -508,6 +508,16 @@ describe('mergeResourcesAsInterface interpolation normalisation', () => {
     should(merged).not.match(/\{\{\s/)
   })
 
+  it('should normalise placeholders spaced on one side only', () => {
+    const merged = mergeResourcesAsInterface([{
+      name: 'ns',
+      resources: { a: 'Hi {{ name}}', b: 'Hi {{name }}', c: '{{ first}} and {{ last }}' }
+    }])
+    should(merged).containEql('"a": "Hi {{name}}"')
+    should(merged).containEql('"b": "Hi {{name}}"')
+    should(merged).containEql('"c": "{{first}} and {{last}}"')
+  })
+
   describe('with optimize flag (plural union branch)', () => {
     const nsSpacedPlurals = {
       name: 'nsSpacedPlurals',
