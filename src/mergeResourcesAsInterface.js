@@ -30,7 +30,7 @@ function mergeResourcesAsInterface (namespaces, options = {}) {
  * JSON values.
  */
 function normalizeInterpolation (str) {
-  return str.replace(/\{\{\s+(.*?)\s+\}\}/g, (_, inner) => `{{${inner.trim()}}}`)
+  return str.replace(/\{\{\s*([^{}]*?)\s*\}\}/g, '{{$1}}')
 }
 
 function resourceToString (resources, depth = 0, opts) {
