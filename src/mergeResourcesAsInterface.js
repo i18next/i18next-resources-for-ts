@@ -121,20 +121,17 @@ export function groupPluralKeys (entries, options) {
         })
         return acc
       }
-      const maybe = rmPluralization([k, v], options)
-      if (maybe == null) {
-        acc[k] = { _tag: translationSymbol, value: [v] }
-        return acc
+      const key = rmPluralization([k, v], options) ?? k
+      // `in` would also see Object.prototype, so `constructor_one` found a function here
+      const existing = Object.prototype.hasOwnProperty.call(acc, key) ? acc[key] : undefined
+      if (existing?._tag === translationSymbol) {
+        // `item` and `item_one` share one union, whichever comes first
+        acc[key] = { _tag: translationSymbol, value: [...existing.value, v] }
+      } else if (existing === undefined) {
+        acc[key] = { _tag: translationSymbol, value: [v] }
       }
-      const depluralized = maybe
-      if (depluralized in acc) {
-        const existing = acc[depluralized]
-        acc[depluralized] = { _tag: translationSymbol, value: [...existing.value, v] }
-        return acc
-      } else {
-        acc[depluralized] = { _tag: translationSymbol, value: [v] }
-        return acc
-      }
+      // else: `item` is also a nested object; keep it, as when the object comes second
+      return acc
     },
     {}
   )
