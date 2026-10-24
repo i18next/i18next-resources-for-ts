@@ -538,6 +538,23 @@ describe('mergeResourcesAsInterface interpolation normalisation', () => {
   })
 })
 
+describe('mergeResourcesAsInterface optimize grouping', () => {
+  const run = (resources) => mergeResourcesAsInterface([{ name: 'ns', resources }], { optimize: true })
+
+  it('should group plural keys whose base is an Object.prototype name', () => {
+    should(run({ constructor_one: 'one', constructor_other: 'many' })).containEql('"constructor": "one" | "many"')
+  })
+
+  it('should merge a plain key and its plural forms in either order', () => {
+    should(run({ item: 'plain', item_one: 'one' })).containEql('"item": "plain" | "one"')
+    should(run({ item_one: 'one', item: 'plain' })).containEql('"item": "one" | "plain"')
+  })
+
+  it('should not throw when a plural base is also a nested object', () => {
+    should(run({ item: { a: 'x' }, item_one: 'one' })).eql(run({ item_one: 'one', item: { a: 'x' } }))
+  })
+})
+
 describe('json2ts', () => {
   it('should generate a ts file content from resources', async () => {
     const ret = json2ts(nsA.resources)
